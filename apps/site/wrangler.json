@@ -10,5 +10,12 @@
   },
   "observability": {
     "enabled": true
-  }
+  },
+  "routes": [
+    {
+      "pattern": "eddychen.ca",
+      "custom_domain": true
+    }
+  ],
+  "workers_dev": false
 }
