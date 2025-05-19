@@ -1,0 +1,28 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+const posts = await getCollection("blog").then((posts) =>
+  posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+);
+---
+
+<BaseLayout pageTitle="Eddy Chen | Blog Archive">
+  <h1>Blog Archive</h1>
+  <div class="">
+    <ul>
+      {
+        posts.map((post) => (
+          <li>
+            <div>
+              <a href={`/blog/${post.id}`}>{post.data.title}</a>
+              <p class="text-half">
+                {post.data.description} ({post.data.date.toLocaleDateString("en-CA")})
+              </p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+  <a href="/">Go back</a>
+</BaseLayout>

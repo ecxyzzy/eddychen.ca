@@ -1,0 +1,27 @@
+{
+  "name": "eddychen.ca",
+  "version": "0.0.0",
+  "private": true,
+  "homepage": "https://eddychen.ca",
+  "license": "AGPLv3",
+  "type": "module",
+  "scripts": {
+    "deploy": "dotenv -- pnpm -r run deploy",
+    "dev": "pnpm -r dev",
+    "fmt:biome": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off",
+    "fmt:prettier": "prettier --write **/*.yml **/*.yaml **/*.json **/*.astro",
+    "format": "pnpm fmt:biome && pnpm fmt:prettier",
+    "postinstall": "lefthook install"
+  },
+  "dependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "22.15.19",
+    "dotenv-cli": "8.0.0",
+    "lefthook": "1.11.13",
+    "prettier": "3.5.3",
+    "prettier-plugin-astro": "0.14.1",
+    "prettier-plugin-packagejson": "2.5.14",
+    "tsx": "4.19.4",
+    "typescript": "5.8.3"
+  }
+}

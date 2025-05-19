@@ -1,0 +1,15 @@
+---
+import "../styles/global.css";
+
+const firstYear = 2025;
+---
+
+<div class="centre-flex">
+  <footer style="margin: 1.25rem">
+    Copyright (c) {
+      new Date().getFullYear() === firstYear
+        ? `${firstYear}`
+        : `${firstYear}–${new Date().getFullYear()}`
+    } Eddy Chen. Made with <a href="https://astro.build">Astro</a> and 💖 in 🇨🇦
+  </footer>
+</div>

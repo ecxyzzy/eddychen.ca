@@ -1,0 +1,24 @@
+{
+  "name": "site",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "astro": "astro",
+    "build": "astro build",
+    "deploy": "astro build && wrangler deploy",
+    "dev": "astro dev",
+    "postinstall": "wrangler types",
+    "preview": "astro build && wrangler dev"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "12.5.3",
+    "@astrojs/mdx": "^4.2.6",
+    "@fontsource/work-sans": "5.2.5",
+    "astro": "5.7.13"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.18",
+    "wrangler": "4.15.2"
+  }
+}

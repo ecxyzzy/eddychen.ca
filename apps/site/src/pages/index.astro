@@ -1,0 +1,83 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+// only show the first 3 posts newer than 1 month old
+const posts = await getCollection("blog").then((posts) =>
+  posts
+    .filter((post) => post.data.date.valueOf() >= Date.now() - 30 * 24 * 60 * 60 * 1000)
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+    .slice(0, 3),
+);
+---
+
+<BaseLayout pageTitle="Eddy Chen">
+  <h1>Eddy Chen</h1>
+  <a href="/name" class="text-half">(what's in a name?)</a>
+  <p>
+    I'm a software engineer who's passionate about <b>backend development</b> and
+    <b>computer science education</b>.
+  </p>
+  <p>
+    <a href="/experience">My work</a> is guided by the philosophy that technology should be used for
+    good,
+    <br /> and that everyone who is willing should have the right to get involved.
+  </p>
+  <h2>About me</h2>
+  <p>
+    I had the great opportunity to intern at <a href="https://asana.com">Asana</a>, in its
+    Vancouver, BC office, in Summer 2024. I am currently slated to return there as a full-time
+    software engineer in August 2025.
+  </p>
+  <p>
+    I'm currently on track to complete my Bachelor of Science in Computer Science from the <a
+      href="https://uci.edu">University of California, Irvine</a
+    >, where I had the privilege of being advised by Professor <a href="https://ics.uci.edu/~mikes"
+      >Michael Shindler</a
+    > for my honors thesis. During my time at UCI, I was also heavily involved with <a
+      href="https://icssc.club">ICS Student Council</a
+    >, as well as <a href="https://acm-uci.org">ACM @ UCI</a> to a lesser extent.
+  </p>
+  <p>
+    When I'm not writing code or my thesis, I'm probably writing science fiction, making music, or
+    playing esoteric board games. As someone who works in tech, I am also privileged to be able to
+    appreciate the outdoors, good food, and travel (especially through credit card points).
+  </p>
+  <p>
+    I also drink way too much coffee. This is partly by necessity, though I do appreciate the taste
+    of good coffee without additives.
+  </p>
+  <h2>Blog</h2>
+  <p>As part of my interest in creative writing, I enjoy yapping about things I like on my blog.</p>
+  <p>Here are some recent posts:</p>
+  <ul>
+    {
+      posts.length ? (
+        posts.map((post) => (
+          <li>
+            <div>
+              <a href={`/blog/${post.id}`}>{post.data.title}</a>
+              <p class="text-half">
+                {post.data.description} ({post.data.date.toLocaleDateString("en-CA")})
+              </p>
+            </div>
+          </li>
+        ))
+      ) : (
+        <p>There are no recent posts. Feel free to bug Eddy via the contact methods below.</p>
+      )
+    }
+  </ul>
+  <p>You can find all posts in the archive <a href="/blog">here</a>.</p>
+  <p>If you enjoy what I write about, you'll probably also enjoy my friends' websites:</p>
+  <ul>
+    <li><a href="https://alexanderliu.com">Alexander Liu</a></li>
+    <li><a href="https://dantedam.com">Dante Dam</a></li>
+    <li><a href="https://awesome-e.dev">Ethan Wang</a></li>
+  </ul>
+  <h2>Get in touch</h2>
+  <ul>
+    <li><a href="mailto:e@eddychen.ca">e [at] eddychen [d0t] ca</a></li>
+    <li><a href="https://github.com/ecxyzzy">GitHub</a></li>
+  </ul>
+</BaseLayout>

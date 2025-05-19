@@ -1,0 +1,32 @@
+:root {
+  background-color: mintcream;
+  font-family: "Work Sans", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 300;
+}
+
+b {
+  font-weight: 400;
+}
+
+h1 {
+  font-size: 3.2rem;
+  line-height: 0.8rem;
+}
+
+h2 {
+  font-size: 2rem;
+  line-height: 0.5rem;
+}
+
+.centre-flex {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  justify-content: center;
+}
+
+.text-half {
+  font-size: 0.625rem;
+}
