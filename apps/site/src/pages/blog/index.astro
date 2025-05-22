@@ -1,8 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-const posts = await getCollection("blog").then((posts) =>
-  posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+const posts = await getCollection("blog").then((xs) =>
+  xs.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
 );
 ---
 
@@ -11,12 +11,12 @@ const posts = await getCollection("blog").then((posts) =>
   <div class="">
     <ul>
       {
-        posts.map((post) => (
+        posts.map(({ id, data }) => (
           <li>
             <div>
-              <a href={`/blog/${post.id}`}>{post.data.title}</a>
+              <a href={`/blog/${id}`}>{data.title}</a>
               <p class="text-half">
-                {post.data.description} ({post.data.date.toLocaleDateString("en-CA")})
+                {data.description} ({data.date.toLocaleDateString("en-CA")})
               </p>
             </div>
           </li>
