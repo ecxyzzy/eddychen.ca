@@ -8,11 +8,13 @@ export const GET: APIRoute = async (ctx) => {
     title: "Eddy's Blog",
     description: "Miscellaneous musings of a mediocre maker",
     site: ctx.site ?? "https://eddychen.ca",
-    items: blog.map(({ id, data }) => ({
-      title: data.title,
-      pubDate: data.date,
-      description: data.description,
-      link: `/blog/${id}`,
-    })),
+    items: blog
+      .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+      .map(({ id, data }) => ({
+        title: data.title,
+        pubDate: data.date,
+        description: data.description,
+        link: `/blog/${id}`,
+      })),
   });
 };
