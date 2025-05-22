@@ -11,6 +11,6 @@ export default defineConfig({
       enabled: true,
     },
   }),
-
   integrations: [mdx()],
+  site: "https://eddychen.ca"
 });
