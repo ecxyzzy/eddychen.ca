@@ -1,9 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "@layouts/BaseLayout.astro";
-const posts = await getCollection("blog").then((xs) =>
-  xs.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
-);
+import { revChron } from "@lib/rev-chron";
+const posts = await getCollection("blog").then((xs) => xs.sort(revChron));
 ---
 
 <BaseLayout pageTitle="Eddy Chen | Blog Archive">

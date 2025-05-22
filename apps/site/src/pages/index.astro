@@ -1,12 +1,13 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
+import { revChron } from "@lib/rev-chron.ts";
 
 // only show the first 3 posts newer than 1 month old
 const posts = await getCollection("blog").then((xs) =>
   xs
     .filter((x) => x.data.date.valueOf() >= Date.now() - 30 * 24 * 60 * 60 * 1000)
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+    .sort(revChron)
     .slice(0, 3),
 );
 ---
