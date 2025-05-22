@@ -9,7 +9,7 @@
     "deploy": "dotenv -- pnpm -r run deploy",
     "dev": "pnpm -r dev",
     "fmt:biome": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off",
-    "fmt:prettier": "prettier --write **/*.yml **/*.yaml **/*.json **/*.astro",
+    "fmt:prettier": "prettier --write **/*.mdx **/*.yml **/*.yaml **/*.json **/*.astro",
     "format": "pnpm fmt:biome && pnpm fmt:prettier",
     "postinstall": "lefthook install"
   },

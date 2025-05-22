@@ -12,5 +12,5 @@ export default defineConfig({
     },
   }),
   integrations: [mdx()],
-  site: "https://eddychen.ca"
+  site: "https://eddychen.ca",
 });
