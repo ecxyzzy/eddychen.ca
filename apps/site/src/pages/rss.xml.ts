@@ -10,6 +10,7 @@ export const GET: APIRoute = async (ctx) => {
     description: "Miscellaneous musings of a mediocre maker",
     site: ctx.site ?? "https://eddychen.ca",
     items: blog.sort(revChron).map(({ id, data }) => ({
+      id,
       title: data.title,
       pubDate: data.date,
       description: data.description,
