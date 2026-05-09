@@ -4,12 +4,16 @@ export const prerender = false;
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { getAuthenticatedUser } from "@lib/auth";
 import { listPrivatePosts } from "@lib/private-posts";
+import { Maybe } from "@lib/util/maybe";
 
 const { env } = Astro.locals.runtime;
 
-const user = await getAuthenticatedUser(Astro.request, env);
-if (!user) {
-  return new Response("Unauthorized", { status: 401 });
+const userOrResponse = await Maybe.from(await getAuthenticatedUser(Astro.request, env)).toRight(
+  new Response("Unauthorized", { status: 401 }),
+);
+
+if (userOrResponse.isLeft()) {
+  return userOrResponse.swap().unwrap();
 }
 
 const posts = await listPrivatePosts(env);

@@ -2,7 +2,6 @@ import { base64Decode, base64Encode, base64UrlToBase64 } from "@lib/base64";
 import { typedJsonParse } from "@lib/typed-json-parse";
 import { Maybe } from "@lib/util/maybe";
 import { Try } from "@lib/util/try";
-import type { Nullable } from "@lib/util/types.ts";
 
 interface JWK {
   kid: string;
@@ -83,14 +82,10 @@ const verifyJWT = (token: string, certsUrl: string): Promise<Maybe<string>> =>
     )
     .then((p) => p.filter(([_, q]) => q.exp && q.exp < Date.now() / 1000).map(([_, q]) => q.email));
 
-const getAuthndUserProd = (request: Request, env: Env): Promise<Nullable<string>> =>
+const getAuthndUserProd = (request: Request, env: Env): Promise<Maybe<string>> =>
   Maybe.from(request.headers.get("cookie"))
     .flatMap((c) => parseCookie(c, "CF_Authorization"))
-    .flatMapAsync((t) => verifyJWT(t, env.CF_ACCESS_CERTS_URL))
-    .then((p) => p.get());
+    .flatMapAsync((t) => verifyJWT(t, env.CF_ACCESS_CERTS_URL));
 
-export const getAuthenticatedUser = async (
-  request: Request,
-  env: Env,
-): Promise<Nullable<string>> =>
-  import.meta.env.DEV ? "dev@localhost" : getAuthndUserProd(request, env);
+export const getAuthenticatedUser = async (request: Request, env: Env): Promise<Maybe<string>> =>
+  import.meta.env.DEV ? Maybe.some("dev@localhost") : getAuthndUserProd(request, env);
