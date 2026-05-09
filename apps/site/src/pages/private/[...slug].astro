@@ -1,18 +1,28 @@
 ---
 export const prerender = false;
 
-import { Maybe } from "@lib/util/maybe";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { getAuthenticatedUser } from "@lib/auth";
-import { getPrivatePost } from "@lib/private-posts";
+import { getPrivatePost } from "@lib/private-posts.ts";
 
 const { env } = Astro.locals.runtime;
 
-await getAuthenticatedUser(Astro.request, env).then((p) => p.unwrapOrThrow("Unauthorized"));
+const user = await getAuthenticatedUser(Astro.request, env);
+if (!user) {
+  return new Response("Unauthorized", { status: 401 });
+}
 
-const slug = Maybe.from(Astro.params.slug).unwrapOrThrow("Not found");
+const { slug } = Astro.params;
+if (!slug) {
+  return new Response("Not found", { status: 404 });
+}
 
-const { data, html } = await getPrivatePost(slug, env).then((p) => p.unwrapOrThrow("Not found"));
+const post = await getPrivatePost(slug, env);
+if (!post) {
+  return new Response("Not found", { status: 404 });
+}
+
+const { data, html } = post;
 ---
 
 <BaseLayout pageTitle=`Eddy Chen | ${data.title}`>
