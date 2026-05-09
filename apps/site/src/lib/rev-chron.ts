@@ -1,4 +1,3 @@
-type BlogObjectStub = { data: { date: Date } };
+import type { Post } from "@lib/types";
 
-export const revChron = (a: BlogObjectStub, b: BlogObjectStub) =>
-  b.data.date.valueOf() - a.data.date.valueOf();
+export const revChron = (a: Post, b: Post) => b.data.date.valueOf() - a.data.date.valueOf();

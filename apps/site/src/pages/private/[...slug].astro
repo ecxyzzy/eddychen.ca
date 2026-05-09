@@ -1,0 +1,24 @@
+---
+export const prerender = false;
+
+import { Maybe } from "@lib/util/maybe";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { getAuthenticatedUser } from "@lib/auth";
+import { getPrivatePost } from "@lib/private-posts";
+
+const { env } = Astro.locals.runtime;
+
+await getAuthenticatedUser(Astro.request, env).then((p) => p.unwrapOrThrow("Unauthorized"));
+
+const slug = Maybe.from(Astro.params.slug).unwrapOrThrow("Not found");
+
+const { data, html } = await getPrivatePost(slug, env).then((p) => p.unwrapOrThrow("Not found"));
+---
+
+<BaseLayout pageTitle=`Eddy Chen | ${data.title}`>
+  <h1>{data.title}</h1>
+  <i>{data.description} ({data.date.toLocaleDateString("en-CA")})</i>
+  <Fragment set:html={html} />
+  <a href="/private">More private posts</a>
+  <a href="/">Go back</a>
+</BaseLayout>

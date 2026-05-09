@@ -1,0 +1,32 @@
+---
+export const prerender = false;
+
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { getAuthenticatedUser } from "@lib/auth";
+import { listPrivatePosts } from "@lib/private-posts";
+
+const { env } = Astro.locals.runtime;
+
+await getAuthenticatedUser(Astro.request, env).then((p) => p.unwrapOrThrow("Unauthorized"));
+
+const posts = await listPrivatePosts(env);
+---
+
+<BaseLayout pageTitle="Eddy Chen | Private Posts">
+  <h1>Private Posts</h1>
+  <ul>
+    {
+      posts.map(({ slug, data }) => (
+        <li>
+          <div>
+            <a href={`/private/${slug}`}>{data.title}</a>
+            <p class="text-half">
+              {data.description} ({data.date.toLocaleDateString("en-CA")})
+            </p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+  <a href="/">Go back</a>
+</BaseLayout>
