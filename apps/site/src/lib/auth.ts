@@ -80,7 +80,9 @@ const verifyJWT = (token: string, certsUrl: string): Promise<Maybe<string>> =>
             ),
         ),
     )
-    .then((p) => p.filter(([_, q]) => q.exp && q.exp < Date.now() / 1000).map(([_, q]) => q.email));
+    .then((p) =>
+      p.filter(([_, q]) => q.exp && q.exp >= Date.now() / 1000).map(([_, q]) => q.email),
+    );
 
 const getAuthndUserProd = (request: Request, env: Env): Promise<Maybe<string>> =>
   Maybe.from(request.headers.get("cookie"))
