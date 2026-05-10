@@ -11,7 +11,7 @@ import { unified } from "unified";
 const processor = unified().use(remarkParse).use(remarkRehype).use(rehypeStringify);
 
 export const getPrivatePost = async (slug: string, env: Env): Promise<Nullable<PostWithContent>> =>
-  Maybe.from(await env.PRIVATE_POSTS.get(`posts/${slug}.md`))
+  Maybe.from(await env.PRIVATE_POSTS.get(`posts/${slug}.mdx`))
     .mapAsync((o) => o.text())
     .then((p) =>
       p.map(matter).mapAsync(async ({ data, content }) => ({
@@ -26,7 +26,7 @@ export const listPrivatePosts = async (env: Env): Promise<PostWithSlug[]> =>
     await env.PRIVATE_POSTS.list({ prefix: "posts/" }).then((p) =>
       p.objects.map((o) =>
         Promise.all([
-          o.key.replace(/^posts\//, "").replace(/\.md$/, ""),
+          o.key.replace(/^posts\//, "").replace(/\.mdx$/, ""),
           env.PRIVATE_POSTS.get(o.key).then((b) => b?.text().then((q) => matter(q).data)),
         ] as const),
       ),
