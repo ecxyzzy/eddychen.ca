@@ -1,3 +1,4 @@
+import { peek } from "@lib/peek";
 import { revChron } from "@lib/rev-chron";
 import type { PostData, PostWithContent, PostWithSlug } from "@lib/types";
 import { Maybe } from "@lib/util/maybe";
@@ -27,7 +28,7 @@ export const listPrivatePosts = async (env: Env): Promise<PostWithSlug[]> =>
       p.objects.map((o) =>
         Promise.all([
           o.key.replace(/^posts\//, "").replace(/\.mdx$/, ""),
-          env.PRIVATE_POSTS.get(o.key).then((b) => b?.text().then((q) => matter(q).data)),
+          env.PRIVATE_POSTS.get(o.key).then((b) => b?.text().then((q) => peek(matter(q).data))),
         ] as const),
       ),
     ),
