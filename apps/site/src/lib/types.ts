@@ -1,8 +1,8 @@
-export interface PostData {
-  title: string;
-  description: string;
-  date: Date;
-}
+import type { z } from "zod";
+
+import type { postDataSchema } from "./schema";
+
+export type PostData = z.infer<typeof postDataSchema>;
 
 export interface Post {
   data: PostData;

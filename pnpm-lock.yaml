@@ -67,6 +67,9 @@ importers:
       unified:
         specifier: 11.0.5
         version: 11.0.5
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       "@types/node":
         specifier: 22.15.18
@@ -3594,6 +3597,12 @@ packages:
         integrity: sha512-VGZqnyYNrl8JpEJRZaFPqeVNIuqgXNu4cXZ5cOb6zEUO1OxKbRnWB4UdDIXMmiERWncs0yDQukssHov8JUxykQ==,
       }
 
+  zod@4.4.3:
+    resolution:
+      {
+        integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==,
+      }
+
   zwitch@2.0.4:
     resolution:
       {
@@ -6031,5 +6040,7 @@ snapshots:
   zod@3.22.3: {}
 
   zod@3.25.3: {}
+
+  zod@4.4.3: {}
 
   zwitch@2.0.4: {}
