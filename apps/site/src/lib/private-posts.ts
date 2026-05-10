@@ -26,14 +26,16 @@ export const getPrivatePost = async (slug: string, env: Env): Promise<Nullable<P
 export const listPrivatePosts = async (env: Env): Promise<PostWithSlug[]> =>
   Promise.all(
     await env.PRIVATE_POSTS.list({ prefix: "posts/" }).then((p) =>
-      p.objects.map((o) =>
-        Promise.all([
-          o.key.replace(/^posts\//, "").replace(/\.mdx$/, ""),
-          env.PRIVATE_POSTS.get(o.key).then((b) =>
-            b?.text().then((q) => parseOrThrow(postDataSchema, matter(q).data)),
-          ),
-        ] as const),
-      ),
+      p.objects
+        .filter((o) => o.key.endsWith(".mdx"))
+        .map((o) =>
+          Promise.all([
+            o.key.replace(/^posts\//, "").replace(/\.mdx$/, ""),
+            env.PRIVATE_POSTS.get(o.key).then((b) =>
+              b?.text().then((q) => parseOrThrow(postDataSchema, matter(q).data)),
+            ),
+          ] as const),
+        ),
     ),
   ).then((p) =>
     p
