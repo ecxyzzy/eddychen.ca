@@ -1,6 +1,6 @@
 import { Maybe } from "./maybe";
 import { Try } from "./try";
-import type { EitherTuple } from "./types";
+import type { EitherTaggedUnion, EitherTuple } from "./types";
 
 export type Either<L, R> = Left<L, R> | Right<L, R>;
 
@@ -10,6 +10,9 @@ export const Either = {
   },
   right<L = never, R = unknown>(value: R): Either<L, R> {
     return new Right(value);
+  },
+  fromTaggedUnion<L, R>(value: EitherTaggedUnion<L, R>): Either<L, R> {
+    return value.success ? new Right(value.data) : new Left(value.error);
   },
 };
 
@@ -43,11 +46,11 @@ abstract class EitherBase<L, R> {
   abstract unwrap(): R;
   abstract unwrapOr(v: R): R;
   abstract unwrapOrElse(f: () => R): R;
-  abstract unwrapOrThrow(errorOrFactory: string | Error | (() => Error)): R;
+  abstract unwrapOrThrow(errorOrFactory: string | Error | ((x: L) => Error)): R;
   abstract map<U>(f: (x: R) => U): Either<L, U>;
   abstract flatMap<U>(f: (x: R) => Either<L, U>): Either<L, U>;
-  abstract filterOrElse(f: (x: R) => unknown, leftValue: L): Either<L, R>;
-  abstract narrowOrElse<U extends R>(f: (x: R) => x is U, leftValue: L): Either<L, U>;
+  abstract filterOrElse(f: (x: R) => unknown, leftFactory: (x: R) => L): Either<L, R>;
+  abstract narrowOrElse<U extends R>(f: (x: R) => x is U, leftFactory: (x: R) => L): Either<L, U>;
   abstract inspect(f: (x: R) => unknown): Either<L, R>;
   abstract swap(): Either<R, L>;
   abstract fold<U>(ifLeft: (x: L) => U, ifRight: (x: R) => U): U;
@@ -86,7 +89,7 @@ export class Right<L, R> extends EitherBase<L, R> {
   unwrapOrElse(_f: () => R): R {
     return this.value;
   }
-  unwrapOrThrow(_errorOrFactory: string | Error | (() => Error)): R {
+  unwrapOrThrow(_errorOrFactory: string | Error | ((x: L) => Error)): R {
     return this.value;
   }
   map<U>(f: (x: R) => U): Either<L, U> {
@@ -95,11 +98,12 @@ export class Right<L, R> extends EitherBase<L, R> {
   flatMap<U>(f: (x: R) => Either<L, U>): Either<L, U> {
     return f(this.value);
   }
-  filterOrElse(f: (x: R) => unknown, leftValue: L): Either<L, R> {
-    return f(this.value) ? this : new Left(leftValue);
+
+  filterOrElse(f: (x: R) => unknown, leftFactory: (x: R) => L): Either<L, R> {
+    return f(this.value) ? this : new Left(leftFactory(this.value));
   }
-  narrowOrElse<U extends R>(f: (x: R) => x is U, leftValue: L): Either<L, U> {
-    return f(this.value) ? (this as unknown as Either<L, U>) : new Left(leftValue);
+  narrowOrElse<U extends R>(f: (x: R) => x is U, leftFactory: (x: R) => L): Either<L, U> {
+    return f(this.value) ? (this as unknown as Either<L, U>) : new Left(leftFactory(this.value));
   }
   inspect(f: (x: R) => unknown): Either<L, R> {
     f(this.value);
@@ -177,14 +181,14 @@ export class Left<L, R> extends EitherBase<L, R> {
   unwrapOrElse(f: () => R): R {
     return f();
   }
-  unwrapOrThrow(errorOrFactory: string | Error | (() => Error)): R {
+  unwrapOrThrow(errorOrFactory: string | Error | ((x: L) => Error)): R {
     switch (typeof errorOrFactory) {
       case "string":
         throw new Error(errorOrFactory);
       case "object":
         throw errorOrFactory;
       case "function":
-        throw errorOrFactory();
+        throw errorOrFactory(this.value);
     }
   }
   map<U>(_f: (x: R) => U): Either<L, U> {
@@ -193,10 +197,11 @@ export class Left<L, R> extends EitherBase<L, R> {
   flatMap<U>(_f: (x: R) => Either<L, U>): Either<L, U> {
     return new Left(this.value);
   }
-  filterOrElse(_f: (x: R) => unknown, _leftValue: L): Either<L, R> {
+
+  filterOrElse(_f: (x: R) => unknown, _leftFactory: (x: R) => L): Either<L, R> {
     return new Left(this.value);
   }
-  narrowOrElse<U extends R>(_f: (x: R) => x is U, _leftValue: L): Either<L, U> {
+  narrowOrElse<U extends R>(_f: (x: R) => x is U, _leftFactory: (x: R) => L): Either<L, U> {
     return new Left(this.value);
   }
   inspect(_f: (x: R) => unknown): Either<L, R> {

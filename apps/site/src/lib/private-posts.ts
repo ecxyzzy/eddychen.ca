@@ -1,8 +1,9 @@
+import { parseOrThrow } from "@lib/parse-or-throw";
 import { revChron } from "@lib/rev-chron";
 import { postDataSchema } from "@lib/schema";
 import type { PostData, PostWithContent, PostWithSlug } from "@lib/types";
 import { Maybe } from "@lib/util/maybe";
-import type { Nullable } from "@lib/util/types.ts";
+import type { Nullable } from "@lib/util/types";
 import matter from "gray-matter";
 import rehypeStringify from "rehype-stringify";
 import remarkParse from "remark-parse";
@@ -16,7 +17,7 @@ export const getPrivatePost = async (slug: string, env: Env): Promise<Nullable<P
     .mapAsync((o) => o.text())
     .then((p) =>
       p.map(matter).mapAsync(async ({ data, content }) => ({
-        data: postDataSchema.parse(data),
+        data: parseOrThrow(postDataSchema, data),
         html: await processor.process(content).then((r) => r.toString()),
       })),
     )
@@ -29,7 +30,7 @@ export const listPrivatePosts = async (env: Env): Promise<PostWithSlug[]> =>
         Promise.all([
           o.key.replace(/^posts\//, "").replace(/\.mdx$/, ""),
           env.PRIVATE_POSTS.get(o.key).then((b) =>
-            b?.text().then((q) => postDataSchema.parse(matter(q).data)),
+            b?.text().then((q) => parseOrThrow(postDataSchema, matter(q).data)),
           ),
         ] as const),
       ),
