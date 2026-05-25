@@ -30,11 +30,11 @@ interface JWT {
   signature: Uint8Array;
 }
 
-const fetchJWKs = async (certsUrl: string): Promise<Try<List<JsonWebKey>>> =>
+const fetchJsonWebKeys = async (certsUrl: string): Promise<Try<List<JsonWebKey>>> =>
   TaskTry(async () => await fetch(certsUrl))
     .filterOrElse(
       (r) => r.ok,
-      (r) => new Error(`Failed to fetch JWKs: ${r.status}`),
+      (r) => new Error(`Failed to fetch JSON web keys: ${r.status}`),
     )
     .map((r) => r.json<{ keys: JsonWebKey[] }>())
     .map(async (x) => x.keys)
@@ -44,11 +44,11 @@ const fetchJWKs = async (certsUrl: string): Promise<Try<List<JsonWebKey>>> =>
 let cachedKeys: { keys: List<JsonWebKey>; fetchedAt: number } | null = null;
 const CACHE_TTL = 60 * 60 * 1000;
 
-async function getJWKs(certsUrl: string): Promise<List<JsonWebKey>> {
+async function getJsonWebKeys(certsUrl: string): Promise<List<JsonWebKey>> {
   if (cachedKeys && Date.now() - cachedKeys.fetchedAt < CACHE_TTL) {
     return cachedKeys.keys;
   }
-  const data = (await fetchJWKs(certsUrl)).get();
+  const data = (await fetchJsonWebKeys(certsUrl)).get();
   cachedKeys = { keys: data, fetchedAt: Date.now() };
   return data;
 }
@@ -73,7 +73,7 @@ const verifyJWT = (token: string, certsUrl: string): TaskMaybe<string> =>
     .flatMap((x) =>
       TaskMaybe.all([
         TaskMaybe(async () => Some(x)),
-        TaskList(async () => await getJWKs(certsUrl)).find((k) => k.kid === x.header.kid),
+        TaskList(async () => await getJsonWebKeys(certsUrl)).find((k) => k.kid === x.header.kid),
       ]),
     )
     .filter(
