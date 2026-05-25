@@ -4,16 +4,18 @@ export const prerender = false;
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { getAuthenticatedUser } from "@lib/auth";
 import { getPrivatePost } from "@lib/private-posts";
-import { Maybe } from "@lib/util/maybe";
+import { Maybe } from "@lib/util/value/maybe";
 
 const { env } = Astro.locals.runtime;
 
-const postOrResponse = await Maybe.from(await getAuthenticatedUser(Astro.request, env))
+const postOrResponse = await Maybe(await getAuthenticatedUser(Astro.request, env))
   .toRight(new Response("Unauthorized", { status: 401 }))
-  .flatMap(() => Maybe.from(Astro.params.slug).toRight(new Response("Not found", { status: 404 })))
-  .flatMapAsync(async (slug) =>
-    Maybe.from(await getPrivatePost(slug, env)).toRight(new Response("Not found", { status: 404 })),
-  );
+  .flatMap(() => Maybe(Astro.params.slug).toRight(new Response("Not found", { status: 404 })))
+  .toTask()
+  .flatMap((slug) =>
+    getPrivatePost(slug, env).toTaskRight(new Response("Not found", { status: 404 })),
+  )
+  .run();
 
 if (postOrResponse.isLeft()) {
   return postOrResponse.swap().unwrap();

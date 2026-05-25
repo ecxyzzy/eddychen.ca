@@ -1,6 +1,6 @@
 import { getCollection } from "astro:content";
 import rss from "@astrojs/rss";
-import { revChron } from "@lib/rev-chron.ts";
+import { revChron } from "@lib/rev-chron";
 import type { APIRoute } from "astro";
 
 export const GET: APIRoute = async (ctx) => {
