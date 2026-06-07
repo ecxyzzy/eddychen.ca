@@ -1,7 +1,7 @@
-import { type Maybe, Some } from "@lib/util/value/maybe";
+import { Just, type Maybe } from "claustrum/adt/Maybe";
 
 export const base64UrlToBase64 = (str: string): Maybe<Uint8Array> =>
-  Some(str.replace(/-/g, "+").replace(/_/g, "/"))
+  Just(str.replace(/-/g, "+").replace(/_/g, "/"))
     .map((s) => s + "=".repeat((4 - (s.length % 4)) % 4))
     .map(atob)
     .map((s) => new Uint8Array(Array.from(new Array(s.length)).map((_, i) => s.charCodeAt(i))));

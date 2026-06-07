@@ -4,16 +4,20 @@ export const prerender = false;
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { getAuthenticatedUser } from "@lib/auth";
 import { getPrivatePost } from "@lib/private-posts";
-import { Maybe } from "@lib/util/value/maybe";
+
+import { Maybe } from "claustrum/adt/Maybe";
 
 const { env } = Astro.locals.runtime;
 
-const postOrResponse = await Maybe(await getAuthenticatedUser(Astro.request, env))
+const postOrResponse = await Maybe(await getAuthenticatedUser(Astro.request, env).run())
   .toRight(new Response("Unauthorized", { status: 401 }))
   .flatMap(() => Maybe(Astro.params.slug).toRight(new Response("Not found", { status: 404 })))
-  .toTask()
+  .liftTask()
   .flatMap((slug) =>
-    getPrivatePost(slug, env).toTaskRight(new Response("Not found", { status: 404 })),
+    getPrivatePost(slug, env)
+      .unlift()
+      .map((m) => m.toRight(new Response("Not found", { status: 404 })))
+      .liftEither(),
   )
   .run();
 

@@ -1,11 +1,10 @@
 import { base64Decode, base64Encode, base64UrlToBase64 } from "@lib/base64";
 import { typedJsonParse } from "@lib/typed-json-parse";
-import { TaskList } from "@lib/util/task/task-list";
-import { TaskMaybe } from "@lib/util/task/task-maybe";
-import { TaskTry } from "@lib/util/task/task-try";
-import { List } from "@lib/util/value/list";
-import { Maybe, Some } from "@lib/util/value/maybe";
-import type { Try } from "@lib/util/value/try";
+
+import { Just, Maybe } from "claustrum/adt/Maybe";
+import { Seq } from "claustrum/collections/Seq";
+import { TaskMaybe } from "claustrum/concurrent/TaskMaybe";
+import { TaskTry } from "claustrum/concurrent/TaskTry";
 
 interface JsonWebKey {
   kid: string;
@@ -30,25 +29,24 @@ interface JWT {
   signature: Uint8Array;
 }
 
-const fetchJsonWebKeys = async (certsUrl: string): Promise<Try<List<JsonWebKey>>> =>
+const fetchJsonWebKeys = (certsUrl: string): TaskTry<Seq<JsonWebKey>> =>
   TaskTry(async () => await fetch(certsUrl))
     .filterOrElse(
       (r) => r.ok,
       (r) => new Error(`Failed to fetch JSON web keys: ${r.status}`),
     )
     .map((r) => r.json<{ keys: JsonWebKey[] }>())
-    .map(async (x) => x.keys)
-    .map(List.from)
-    .run();
+    .map((x) => x.keys)
+    .map(Seq.from);
 
-let cachedKeys: { keys: List<JsonWebKey>; fetchedAt: number } | null = null;
+let cachedKeys: { keys: Seq<JsonWebKey>; fetchedAt: number } | null = null;
 const CACHE_TTL = 60 * 60 * 1000;
 
-async function getJsonWebKeys(certsUrl: string): Promise<List<JsonWebKey>> {
+async function getJsonWebKeys(certsUrl: string): Promise<Seq<JsonWebKey>> {
   if (cachedKeys && Date.now() - cachedKeys.fetchedAt < CACHE_TTL) {
     return cachedKeys.keys;
   }
-  const data = (await fetchJsonWebKeys(certsUrl)).get();
+  const data = (await fetchJsonWebKeys(certsUrl).run()).get();
   cachedKeys = { keys: data, fetchedAt: Date.now() };
   return data;
 }
@@ -62,19 +60,18 @@ const decodeJWTPart = <T>(str: string) =>
     .map(typedJsonParse<T>);
 
 const verifyJWT = (token: string, certsUrl: string): TaskMaybe<string> =>
-  Some(token)
+  Just(token)
     .map((t) => t.split("."))
-    .filter((t) => t.length === 3)
+    .narrow((t): t is [string, string, string] => t.length === 3)
     .flatMap(([h, p, s]) =>
-      Maybe.all([decodeJWTPart<JWTHeader>(h), decodeJWTPart<JWTPayload>(p), base64UrlToBase64(s)]),
+      decodeJWTPart<JWTHeader>(h).zip(decodeJWTPart<JWTPayload>(p), base64UrlToBase64(s)),
     )
     .map(([header, payload, signature]): JWT => ({ header, payload, signature }))
-    .toTask()
+    .liftTask()
     .flatMap((x) =>
-      TaskMaybe.all([
-        TaskMaybe(async () => Some(x)),
-        TaskList(async () => await getJsonWebKeys(certsUrl)).find((k) => k.kid === x.header.kid),
-      ]),
+      TaskMaybe(async () =>
+        Just(x).zip((await getJsonWebKeys(certsUrl)).find((k) => k.kid === x.header.kid)),
+      ),
     )
     .filter(
       async ([{ header, payload, signature }, { kty, n, e }]) =>
@@ -97,8 +94,8 @@ const verifyJWT = (token: string, certsUrl: string): TaskMaybe<string> =>
 const getAuthndUserProd = (request: Request, env: Env): TaskMaybe<string> =>
   Maybe(request.headers.get("cookie"))
     .flatMap((c) => parseCookie(c, "CF_Authorization"))
-    .toTask()
+    .liftTask()
     .flatMap((t) => verifyJWT(t, env.CF_ACCESS_CERTS_URL));
 
-export const getAuthenticatedUser = async (request: Request, env: Env): Promise<Maybe<string>> =>
-  import.meta.env.DEV ? Some("dev@localhost") : getAuthndUserProd(request, env).run();
+export const getAuthenticatedUser = (request: Request, env: Env): TaskMaybe<string> =>
+  import.meta.env.DEV ? Just("dev@localhost").liftTask() : getAuthndUserProd(request, env);

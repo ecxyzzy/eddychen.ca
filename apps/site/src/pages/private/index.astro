@@ -4,11 +4,12 @@ export const prerender = false;
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { getAuthenticatedUser } from "@lib/auth";
 import { listPrivatePosts } from "@lib/private-posts";
-import { Maybe } from "@lib/util/value/maybe";
+
+import { Maybe } from "claustrum/adt/Maybe";
 
 const { env } = Astro.locals.runtime;
 
-const userOrResponse = Maybe(await getAuthenticatedUser(Astro.request, env)).toRight(
+const userOrResponse = Maybe(await getAuthenticatedUser(Astro.request, env).run()).toRight(
   new Response("Unauthorized", { status: 401 }),
 );
 
@@ -16,7 +17,7 @@ if (userOrResponse.isLeft()) {
   return userOrResponse.swap().unwrap();
 }
 
-const posts = (await listPrivatePosts(env)).toArray();
+const posts = [...(await listPrivatePosts(env).run())];
 ---
 
 <BaseLayout pageTitle="Eddy Chen | Private Posts">
