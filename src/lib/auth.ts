@@ -67,7 +67,7 @@ const verifyJWT =
       .narrow((t): t is [string, string, string] => t.length === 3)
       .map(
         ([h, p, s]): JWT => ({
-          raw: `${h}.${p}$`,
+          raw: `${h}.${p}`,
           header: decodeJWTPart<JWTHeader>(h),
           payload: decodeJWTPart<JWTPayload>(p),
           signature: Uint8Array.fromBase64(s, { alphabet: "base64url" }),
