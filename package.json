@@ -5,9 +5,8 @@
     "dev": "vp dev",
     "build": "vp build",
     "preview": "vp preview",
-    "predeploy": "vp build",
     "deploy": "wrangler deploy",
-    "postinstall": "vpr cf-typegen",
+    "postinstall": "pnpm cf-typegen",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "prepare": "vp config"
   },
