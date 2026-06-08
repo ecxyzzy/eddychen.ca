@@ -61,8 +61,8 @@ const decodeJWTPart = <T>(str: string) =>
     .map(typedJsonParse<T>);
 
 const verifyJWT =
-  (token: string) =>
-  (certsUrl: string): TaskMaybe<string> =>
+  (certsUrl: string) =>
+  (token: string): TaskMaybe<string> =>
     Just(token)
       .map(t => t.split("."))
       .narrow((t): t is [string, string, string] => t.length === 3)
