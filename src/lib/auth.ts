@@ -4,7 +4,7 @@ import { TaskMaybe } from "claustrum/concurrent/TaskMaybe";
 import { TaskTry } from "claustrum/concurrent/TaskTry";
 import { Context } from "hono";
 
-import { base64Decode, base64Encode, base64UrlToBase64 } from "@/lib/base64";
+import { bufToStr, strToBuf } from "@/lib/buffer";
 import { typedJsonParse } from "@/lib/typed-json-parse";
 
 interface JsonWebKey {
@@ -56,9 +56,7 @@ const parseCookie = (name: string) => (cookieHeader: string) =>
   Maybe(cookieHeader.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`))?.[1]);
 
 const decodeJWTPart = <T>(str: string) =>
-  base64UrlToBase64(str)
-    .map(base64Decode)
-    .map(typedJsonParse<T>);
+  typedJsonParse<T>(bufToStr(Uint8Array.fromBase64(str, { alphabet: "base64url" })));
 
 const verifyJWT =
   (certsUrl: string) =>
@@ -66,10 +64,13 @@ const verifyJWT =
     Just(token)
       .map(t => t.split("."))
       .narrow((t): t is [string, string, string] => t.length === 3)
-      .flatMap(([h, p, s]) =>
-        decodeJWTPart<JWTHeader>(h).zip(decodeJWTPart<JWTPayload>(p), base64UrlToBase64(s)),
+      .map(
+        ([h, p, s]): JWT => ({
+          header: decodeJWTPart<JWTHeader>(h),
+          payload: decodeJWTPart<JWTPayload>(p),
+          signature: Uint8Array.fromBase64(s, { alphabet: "base64url" }),
+        }),
       )
-      .map(([header, payload, signature]): JWT => ({ header, payload, signature }))
       .liftTask()
       .flatMap(x =>
         TaskMaybe(async () =>
@@ -88,7 +89,9 @@ const verifyJWT =
               ["verify"],
             ),
             signature,
-            base64Encode(`${JSON.stringify(header)}.${JSON.stringify(payload)}`),
+            strToBuf(
+              `${strToBuf(JSON.stringify(header)).toBase64()}.${strToBuf(JSON.stringify(payload)).toBase64()}`,
+            ),
           ),
       )
       .filter(([{ payload }]) => payload.exp && payload.exp >= Date.now() / 1000)
