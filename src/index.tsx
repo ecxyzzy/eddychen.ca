@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { trimTrailingSlash } from "hono/trailing-slash";
 
 import { renderer } from "@/lib/renderer";
 import { blogRoutes } from "@/routes/blog";
@@ -8,6 +9,7 @@ import { staticRoutes } from "@/routes/static";
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
+app.use(trimTrailingSlash());
 app.use(renderer);
 app.route("/", staticRoutes);
 app.route("/", rssRoute);

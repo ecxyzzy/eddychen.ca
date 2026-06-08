@@ -25,6 +25,7 @@ interface JWTPayload {
 }
 
 interface JWT {
+  raw: string;
   header: JWTHeader;
   payload: JWTPayload;
   signature: Uint8Array;
@@ -66,6 +67,7 @@ const verifyJWT =
       .narrow((t): t is [string, string, string] => t.length === 3)
       .map(
         ([h, p, s]): JWT => ({
+          raw: `${h}.${p}$`,
           header: decodeJWTPart<JWTHeader>(h),
           payload: decodeJWTPart<JWTPayload>(p),
           signature: Uint8Array.fromBase64(s, { alphabet: "base64url" }),
@@ -78,7 +80,7 @@ const verifyJWT =
         ),
       )
       .filter(
-        async ([{ header, payload, signature }, { kty, n, e }]) =>
+        async ([{ raw, signature }, { kty, n, e }]) =>
           await crypto.subtle.verify(
             "RSASSA-PKCS1-v1_5",
             await crypto.subtle.importKey(
@@ -89,9 +91,7 @@ const verifyJWT =
               ["verify"],
             ),
             signature,
-            strToBuf(
-              `${strToBuf(JSON.stringify(header)).toBase64()}.${strToBuf(JSON.stringify(payload)).toBase64()}`,
-            ),
+            strToBuf(raw),
           ),
       )
       .filter(([{ payload }]) => payload.exp && payload.exp >= Date.now() / 1000)
