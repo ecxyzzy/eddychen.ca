@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "site",
+  "compatibility_date": "2025-08-03",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./src/index.tsx",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "routes": [
+    {
+      "pattern": "eddychen.ca",
+      "custom_domain": true
+    }
+  ],
+  "workers_dev": false,
+  "r2_buckets": [
+    {
+      "binding": "PRIVATE_POSTS",
+      "bucket_name": "private-posts"
+    }
+  ],
+  "vars": {
+    "CF_ACCESS_CERTS_URL": "https://ecxyzzy.cloudflareaccess.com/cdn-cgi/access/certs"
+  }
+}

@@ -1,0 +1,42 @@
+import { Dict } from "claustrum/collections/Dict";
+import { Seq } from "claustrum/collections/Seq";
+import { TaskMaybe } from "claustrum/concurrent/TaskMaybe";
+import matter from "gray-matter";
+
+import { matterToContent } from "@/lib/content";
+import { parseOrThrow } from "@/lib/parse-or-throw";
+import { revChron } from "@/lib/rev-chron";
+import { postDataSchema } from "@/lib/schema";
+import type { PostWithContent, PostWithSlug } from "@/lib/types";
+
+const modules = Dict.from(
+  import.meta.glob("../content/blog/*.mdx", {
+    query: "?raw",
+    import: "default",
+    eager: true,
+  }) as Record<string, string>,
+);
+
+const posts = modules
+  .entries()
+  .map(([path, raw]) => ({
+    slug: path.replace(/^.*\//, "").replace(/\.mdx$/, ""),
+    data: parseOrThrow(postDataSchema, matter(raw).data),
+  }))
+  .toSeq()
+  .toSorted(revChron);
+
+const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+
+export const getAllPosts = (): Seq<PostWithSlug> => posts;
+
+export const getPost = (slug: string): TaskMaybe<PostWithContent> =>
+  modules
+    .entries()
+    .find(([path]) => path.replace(/^.*\//, "").replace(/\.mdx$/, "") === slug)
+    .map(([, raw]) => matter(raw))
+    .liftTask()
+    .map(matterToContent);
+
+export const getRecentPosts = (): Seq<PostWithSlug> =>
+  posts.filter(p => p.data.date.valueOf() >= thirtyDaysAgo).take(3);
