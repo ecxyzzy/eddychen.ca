@@ -2,6 +2,7 @@ import { Just } from "claustrum/adt/Maybe";
 import { TaskMaybe } from "claustrum/concurrent/TaskMaybe";
 import matter, { GrayMatterFile } from "gray-matter";
 import rehypeStringify from "rehype-stringify";
+import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
@@ -10,7 +11,7 @@ import { parseOrThrow } from "@/lib/parse-or-throw";
 import { postDataSchema } from "@/lib/schema";
 import type { PostWithContent } from "@/lib/types";
 
-const processor = unified().use(remarkParse).use(remarkRehype).use(rehypeStringify);
+const processor = unified().use(remarkParse).use(remarkGfm).use(remarkRehype).use(rehypeStringify);
 
 export const matterToContent = async ({
   data,

@@ -9,7 +9,6 @@ export const BlogPost: FC<{ post: PostWithContent }> = ({ post }) => (
       {post.data.description} ({post.data.date.toLocaleDateString("en-CA")})
     </i>
     <div dangerouslySetInnerHTML={{ __html: post.html }} />
-    <a href="/blog">More posts</a>
-    <a href="/">Go back</a>
+    <a href="/blog">More posts</a> <a href="/">Go back</a>
   </>
 );
