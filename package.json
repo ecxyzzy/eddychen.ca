@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@fontsource/work-sans": "^5.2.8",
-    "claustrum": "^0.2.0",
+    "claustrum": "^0.3.0",
     "gray-matter": "^4.0.3",
     "hono": "^4.12.23",
     "rehype-stringify": "^10.0.1",

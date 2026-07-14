@@ -1,5 +1,5 @@
 import { Just, Maybe } from "claustrum/adt/Maybe";
-import { Seq } from "claustrum/collections/Seq";
+import { Arr } from "claustrum/collections/Arr";
 import { TaskMaybe } from "claustrum/concurrent/TaskMaybe";
 import { TaskTry } from "claustrum/concurrent/TaskTry";
 import { Context } from "hono";
@@ -31,7 +31,7 @@ interface JWT {
   signature: Uint8Array;
 }
 
-const fetchJsonWebKeys = (certsUrl: string): TaskTry<Seq<JsonWebKey>> =>
+const fetchJsonWebKeys = (certsUrl: string): TaskTry<Arr<JsonWebKey>> =>
   TaskTry(async () => await fetch(certsUrl))
     .filterOrElse(
       r => r.ok,
@@ -39,12 +39,12 @@ const fetchJsonWebKeys = (certsUrl: string): TaskTry<Seq<JsonWebKey>> =>
     )
     .map(r => r.json<{ keys: JsonWebKey[] }>())
     .map(x => x.keys)
-    .map(Seq.from);
+    .map(Arr.from);
 
-let cachedKeys: { keys: Seq<JsonWebKey>; fetchedAt: number } | null = null;
+let cachedKeys: { keys: Arr<JsonWebKey>; fetchedAt: number } | null = null;
 const CACHE_TTL = 60 * 60 * 1000;
 
-async function getJsonWebKeys(certsUrl: string): Promise<Seq<JsonWebKey>> {
+async function getJsonWebKeys(certsUrl: string): Promise<Arr<JsonWebKey>> {
   if (cachedKeys && Date.now() - cachedKeys.fetchedAt < CACHE_TTL) {
     return cachedKeys.keys;
   }
@@ -64,7 +64,7 @@ const verifyJWT =
   (token: string): TaskMaybe<string> =>
     Just(token)
       .map(t => t.split("."))
-      .narrow((t): t is [string, string, string] => t.length === 3)
+      .filter((t): t is [string, string, string] => t.length === 3)
       .map(
         ([h, p, s]): JWT => ({
           raw: `${h}.${p}`,

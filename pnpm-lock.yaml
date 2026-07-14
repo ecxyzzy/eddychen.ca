@@ -22,8 +22,8 @@ importers:
         specifier: ^5.2.8
         version: 5.2.8
       claustrum:
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.3.0
+        version: 0.3.0
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
@@ -1141,8 +1141,8 @@ packages:
   character-entities@2.0.2:
     resolution: {integrity: sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==}
 
-  claustrum@0.2.0:
-    resolution: {integrity: sha512-2TK92uxDZUHnQuHSoqY8uA9OZaSM5zaFeUzDI26IhL8iOnixVKonuj3fhI0jkUM/X7E2E8AKodPaflbv0+uE5w==}
+  claustrum@0.3.0:
+    resolution: {integrity: sha512-f0Oq/NKoK3ArnveqSl1kKOSc62z3cjqsXAQi+7lME+FcW0UyL33Qss4xLE0K+OYAXLZfUn3/Y/YgQxrWXy5v7w==}
 
   comma-separated-tokens@2.0.3:
     resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
@@ -2434,7 +2434,7 @@ snapshots:
 
   character-entities@2.0.2: {}
 
-  claustrum@0.2.0: {}
+  claustrum@0.3.0: {}
 
   comma-separated-tokens@2.0.3: {}
 

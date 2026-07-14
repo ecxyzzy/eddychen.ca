@@ -1,9 +1,9 @@
-import { Seq } from "claustrum/collections/Seq";
+import { Arr } from "claustrum/collections/Arr";
 import { FC } from "hono/jsx";
 
 import { PostWithSlug } from "@/lib/types";
 
-export const HomePage: FC<{ posts: Seq<PostWithSlug> }> = ({ posts }) => (
+export const HomePage: FC<{ posts: Arr<PostWithSlug> }> = ({ posts }) => (
   <>
     <h1>Eddy Chen</h1>
     <a href="/name" class="text-half">
@@ -47,17 +47,19 @@ export const HomePage: FC<{ posts: Seq<PostWithSlug> }> = ({ posts }) => (
     </p>
     <p>Here are some recent posts:</p>
     <ul>
-      {posts.length() ? (
-        posts.map(post => (
-          <li>
-            <div>
-              <a href={`/blog/${post.slug}`}>{post.data.title}</a>
-              <p class="text-half">
-                {post.data.description} ({post.data.date.toLocaleDateString("en-CA")})
-              </p>
-            </div>
-          </li>
-        ))
+      {posts.size() ? (
+        posts
+          .map(post => (
+            <li>
+              <div>
+                <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+                <p class="text-half">
+                  {post.data.description} ({post.data.date.toLocaleDateString("en-CA")})
+                </p>
+              </div>
+            </li>
+          ))
+          .toJsArray()
       ) : (
         <p>There are no recent posts. Feel free to bug Eddy via the contact methods below.</p>
       )}

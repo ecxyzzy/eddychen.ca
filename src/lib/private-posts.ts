@@ -1,5 +1,5 @@
 import { Just, Maybe } from "claustrum/adt/Maybe";
-import { Seq } from "claustrum/collections/Seq";
+import { Arr } from "claustrum/collections/Arr";
 import { Task } from "claustrum/concurrent/Task";
 import { TaskMaybe } from "claustrum/concurrent/TaskMaybe";
 import { Context } from "hono";
@@ -14,9 +14,9 @@ export const getPrivatePost = (
     Maybe(await c.env.PRIVATE_POSTS.get(`posts/${c.req.param("slug")}.mdx`)),
   ).flatMap(bodyToContent);
 
-export const listPrivatePosts = (env: CloudflareBindings): Task<Seq<PostWithSlug>> =>
+export const listPrivatePosts = (env: CloudflareBindings): Task<Arr<PostWithSlug>> =>
   Task(async () => await env.PRIVATE_POSTS.list({ prefix: "posts/" })).flatMap(p =>
-    Seq.from(p.objects)
+    Arr.from(p.objects)
       .filter(o => o.key.endsWith(".mdx"))
       .traverseTask(async o =>
         Just(o.key.replace(/^posts\//, "").replace(/\.mdx$/, ""))
