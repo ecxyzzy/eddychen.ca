@@ -21,15 +21,15 @@ const modules = StrMap.from(
 const posts = Arr.from(
   modules
     .entries()
-    .map(([path, raw]) => ({
-      slug: path.replace(/^.*\//, "").replace(/\.mdx$/, ""),
-      data: parseOrThrow(postDataSchema, matter(raw).data),
-    }))
+    .map(
+      ([path, raw]): PostWithSlug => ({
+        slug: path.replace(/^.*\//, "").replace(/\.mdx$/, ""),
+        data: parseOrThrow(postDataSchema, matter(raw).data),
+      }),
+    )
     .toJsArray()
     .toSorted(revChron),
 );
-
-const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
 
 export const getAllPosts = (): Arr<PostWithSlug> => posts;
 
@@ -41,5 +41,7 @@ export const getPost = (slug: string): TaskMaybe<PostWithContent> =>
     .liftTask()
     .map(matterToContent);
 
-export const getRecentPosts = (): Arr<PostWithSlug> =>
-  posts.filter(p => p.data.date.valueOf() >= thirtyDaysAgo).take(3);
+export const getRecentPosts = (): Arr<PostWithSlug> => {
+  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  return posts.filter(p => p.data.date.valueOf() >= thirtyDaysAgo).take(3);
+};
